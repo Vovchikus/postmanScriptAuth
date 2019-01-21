@@ -10,25 +10,21 @@ function getQueryString(url) {
 }
  
 function getAuthHeader(httpMethod, requestUrl, requestBody) {
-    var CLIENT_KEY = 'key';
-    var SECRET_KEY = 'secret';
+    var CLIENT_KEY = 'api_key';
+    var SECRET_KEY = 'api_secret';
     var AUTH_TYPE = 'HMAC-SHA256';
- 
     var requestPath = getPath(requestUrl);
-    
     var queryString = getQueryString(requestUrl);
-    
-    if (httpMethod == 'GET' || !requestBody) {
+    if (httpMethod == 'GET' || !requestBody || !requestBody.length) {
         requestBody = ''; 
     }
-         
+    
     var hashedPayload = CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(requestBody));
     var timestamp = new Date().toISOString().split('.')[0];
     var requestData = [httpMethod, requestPath, queryString, timestamp, hashedPayload].join(" ");
     var hashedRequestData = CryptoJS.enc.Hex.stringify(CryptoJS.SHA256(requestData));
     var hmacDigest = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(hashedRequestData, SECRET_KEY));
     var authHeader = AUTH_TYPE + ', ' + timestamp + ", " + CLIENT_KEY + ', ' + hmacDigest;
-        
     return authHeader;
 }
  
